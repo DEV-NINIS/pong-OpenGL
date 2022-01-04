@@ -22,19 +22,23 @@ public:
 	float moveRacket2(GLFWwindow* window, float valueY);
 	void compileShaderRacket();
 	GLuint getShaderProgram();
+	GLuint getShaderProgram2();
 protected:
 	int successCompile;
 	const char* codeVertexShader;
+	const char* codeVertexShader2;
 	const char* codeFragmentShader;
+	const char* codeFragmentShader2;
 	unsigned int VBO_racket1;
 	unsigned int VAO_racket1;
 	unsigned int EBO_racket1;
 	unsigned int VAO_racket2;
 	unsigned int VBO_racket2;
 	unsigned int EBO_racket2;
-	unsigned int fragShader;
-	unsigned int vertexShader;
+	unsigned int fragShader, fragShader2;
+	unsigned int vertexShader, vertexShader2;
 	unsigned int programShader;
+	unsigned int programShader2;
 	static float verteciesRacket1[];
 	static float verteciesRacket2[];
 	static unsigned int indexRacket1[];

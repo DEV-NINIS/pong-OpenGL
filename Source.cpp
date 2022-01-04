@@ -50,7 +50,21 @@ int main() {
 				dirMoveRacket1Y += 0.010f;
 			}
 		}
-		dirMoveRacket2Y = dirMoveRacket2Y + racketBall.moveRacket2(window, dirMoveRacket2Y);
+		if (dirMoveRacket2Y <= 1.0f - (0.5 / 2) && dirMoveRacket2Y >= -1.0f + 0.5 / 2)
+		{
+			dirMoveRacket2Y = dirMoveRacket2Y + racketBall.moveRacket2(window, dirMoveRacket2Y);
+		}
+		else if (dirMoveRacket2Y > 1.0f - (0.5 / 2)) {
+			if (racketBall.buttonRacket2_down(window) == true) {
+				dirMoveRacket2Y += -0.010f;
+			}
+		}
+		else if (dirMoveRacket2Y < -1.0f + 0.5 / 2) {
+			if (racketBall.buttonRacket2_up(window) == true) {
+				dirMoveRacket2Y += 0.010f;
+			}
+		}
+		glUniform1f(glGetUniformLocation(racketBall.getShaderProgram2(), "posRacket2"), dirMoveRacket2Y);
 		glUniform1f(glGetUniformLocation(racketBall.getShaderProgram(), "posRacket"), dirMoveRacket1Y);
 		process_input(window);
 		glClearColor(0.9f, 0.5f, 0.2f, 0.9f);
