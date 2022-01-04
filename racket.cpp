@@ -24,11 +24,14 @@ racket::racket() {
 	vertexShader; 
 	programShader;
 	codeFragmentShader = "#version 460 core\n"
+
 		" in vec3 aColor2;\n"
 		" out vec4 FragColor;\n"
+
 		"void main() {\n"
 		"FragColor = vec4(aColor2.x, aColor2.y, aColor2.z, 1.0);\n"
 		"}\n";
+
 	codeVertexShader = "#version 460 core\n"
 
 		" layout (location = 0) in vec3 aPos;\n"
@@ -39,6 +42,25 @@ racket::racket() {
 		"void main() {\n"
 		"	gl_Position = vec4(aPos.x, aPos.y + posRacket, aPos.z, 1.0);\n"
 		"	aColor2 = vec3(aColor);\n"
+		"}\n";
+	codeVertexShader2 = "#version 460 core\n"
+
+		" layout (location = 2) in vec3 aPos;\n"
+		" layout (location = ) in vec3 aColor;\n"
+		"uniform float posRacket2;\n"
+		" out vec3 aColor2;\n"
+
+		"void main() {\n"
+		"	gl_Position = vec4(aPos.x, aPos.y + posRacket2, aPos.z, 1.0);\n"
+		"	aColor2 = vec3(aColor);\n"
+		"}\n";
+	codeFragmentShader2 = "#version 460 core\n"
+
+		"in vec3 aColor2;\n"
+
+		"void main() {\n"
+
+		"FragColor = vec4(aColor2.x, aColor2.y, aColor2.z, 1.0);\n"
 		"}\n";
 	successCompile;
 	VBO_racket1; VAO_racket1; EBO_racket1;
@@ -108,6 +130,20 @@ void racket::setBufferRacket2() {
 	0, 1, 2,	// first triangle
 	0, 2, 3
 	};
+	vertexShader2 = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader2, 1, (const GLchar**)&codeVertexShader2, NULL);
+	glCompileShader(vertexShader2);
+
+	fragShader2 = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragShader2, 1, (const GLchar**)&codeFragmentShader2, NULL);
+	glCompileShader(fragShader2);
+
+	programShader2 = glCreateProgram();
+	glAttachShader(programShader2, vertexShader2);
+	glAttachShader(programShader2, fragShader2);
+	glLinkProgram(programShader2);
+	// the end of compilation of shader
+
 	glGenVertexArrays(1, &VAO_racket2);
 	glGenBuffers(1, &VBO_racket2);
 	glGenBuffers(1, &EBO_racket2);
@@ -119,16 +155,16 @@ void racket::setBufferRacket2() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_racket2);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexRacket12), indexRacket12, GL_STATIC_DRAW);
 	// pointer 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(3);
 }
 void racket::drawRacket2() {
-	glUseProgram(programShader);
+	glUseProgram(programShader2);
 	glBindVertexArray(VAO_racket2);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+	glBindVertexArray(2);
 }
 float racket::moveRacket1(GLFWwindow* window, float valueY) {
 	if (this->buttonRacket1_up(window) == true) {
@@ -184,6 +220,5 @@ bool racket::buttonRacket2_down(GLFWwindow* window) {
 		return false;
 	}
 }
-GLuint racket::getShaderProgram() {
-	return programShader;
-}
+GLuint racket::getShaderProgram() { return programShader; }
+GLuint racket::getShaderProgram2() { return programShader2; }
