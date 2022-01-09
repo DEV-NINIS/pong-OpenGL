@@ -39,6 +39,9 @@ protected:
 	unsigned int vertexShader, vertexShader2;
 	unsigned int programShader;
 	unsigned int programShader2;
+	GLuint texCoordRacket1;
+	GLuint texCoordRacket2;
+	static float textCords[];
 	static float verteciesRacket1[];
 	static float verteciesRacket2[];
 	static unsigned int indexRacket1[];

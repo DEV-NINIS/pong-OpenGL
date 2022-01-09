@@ -2,19 +2,23 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
+#define STB_IMAGE_IMPLEMENTATION
+#include "stbi_img.h"
 float racket::verteciesRacket1[] = {
-	-0.95f, -0.25f, 0.0f,      0.9f, 0.8f, 0.1f,
-		-0.95f, 0.25f, 0.0f,		0.9f, 0.5f, 0.9f,
-		-0.92f, 0.25f, 0.0f,		0.5f, 0.9f, 0.7f,
-		-0.92f, -0.25f, 0.0f,		0.4f, 0.2f, 0.1f
+	-0.95f, -0.25f, 0.0f,      0.9f, 0.8f, 0.1f,		0.025f, 0.125f,
+		-0.95f, 0.25f, 0.0f,		0.9f, 0.5f, 0.9f,	0.025f, -0.625f,
+		-0.90f, 0.25f, 0.0f,		0.5f, 0.9f, 0.7f,	0.050f, -0.625f,
+		-0.90f, -0.25f, 0.0f,		0.4f, 0.2f, 0.1f,	0.050f, 0.125f
+};
+float racket::textCords[] = {
+	0
 };
 float racket::verteciesRacket2[] = {
-	// position			// color
-	0.95f, -0.25f, 0.0f,	0.9f, 0.8f, 0.1f,
-	0.95f, 0.25f, 0.0f,		0.6f, 0.5f, 0.1f,
-	0.92f, 0.25f, 0.0f,		0.5f, 0.9f, 0.7f,
-	0.92f, -0.25f, 0.0f,	0.1f, 0.2f, 0.9f
+	// position			// color					//texCoord
+	0.95f, -0.25f, 0.0f,	0.9f, 0.8f, 0.1f,		0.975f, 0.5f, 
+	0.95f, 0.25f, 0.0f,		0.6f, 0.5f, 0.1f,		0.975f, -0.5f,
+	0.92f, 0.25f, 0.0f,		0.5f, 0.9f, 0.7f,		0.95f, -0.5f,
+	0.92f, -0.25f, 0.0f,	0.1f, 0.2f, 0.9f,		0.95f, 0.5f
 };
 unsigned int racket::indexRacket1[] = {
 	0, 1, 2,	// first triangle
@@ -26,43 +30,64 @@ racket::racket() {
 	codeFragmentShader = "#version 460 core\n"
 
 		" in vec3 aColor2;\n"
+		
 		" out vec4 FragColor;\n"
+		
+		"in vec2 ourTexCoord;\n"
+		
+		"uniform sampler2D ourTexture;\n"
 
 		"void main() {\n"
-		"FragColor = vec4(aColor2.x, aColor2.y, aColor2.z, 1.0);\n"
-		"}\n";
+		
+		"FragColor = texture(ourTexture, ourTexCoord);\n"
+		
+		"}\n\0";
 
 	codeVertexShader = "#version 460 core\n"
 
 		" layout (location = 0) in vec3 aPos;\n"
 		" layout (location = 1) in vec3 aColor;\n"
-		"uniform float posRacket;\n"
+		" laoyut (location = 2) in vec2 texCoord;\n"
+
+		"uniform float dirMoveRacket1Y;\n"
+
 		" out vec3 aColor2;\n"
 
+		"out vec2 ourTexCoord;\n"
+
 		"void main() {\n"
-		"	gl_Position = vec4(aPos.x, aPos.y + posRacket, aPos.z, 1.0);\n"
+
+		"	gl_Position = vec4(aPos.x, aPos.y + dirMoveRacket1Y, aPos.z, 1.0);\n"
+		
 		"	aColor2 = vec3(aColor);\n"
-		"}\n";
+
+		"	ourTexCoord = vec2(texCoord.x, texCoord.y);\n"
+		"}\n\0";
+	//
 	codeVertexShader2 = "#version 460 core\n"
 
 		" layout (location = 2) in vec3 aPos;\n"
-		" layout (location = ) in vec3 aColor;\n"
-		"uniform float posRacket2;\n"
+		" layout (location = 3) in vec3 aColor;\n"
+		"uniform float dirMoveRacket2Y;\n"
 		" out vec3 aColor2;\n"
 
 		"void main() {\n"
-		"	gl_Position = vec4(aPos.x, aPos.y + posRacket2, aPos.z, 1.0);\n"
+		
+		"	gl_Position = vec4(aPos.x, aPos.y + dirMoveRacket2Y, aPos.z, 1.0);\n"
+		
+		
 		"	aColor2 = vec3(aColor);\n"
 		"}\n";
 	codeFragmentShader2 = "#version 460 core\n"
 
 		"in vec3 aColor2;\n"
-
 		"void main() {\n"
 
 		"FragColor = vec4(aColor2.x, aColor2.y, aColor2.z, 1.0);\n"
+		""
 		"}\n";
 	successCompile;
+	texCoordRacket1; texCoordRacket2;
 	VBO_racket1; VAO_racket1; EBO_racket1;
 	VAO_racket2; VBO_racket2; EBO_racket2;
 }
@@ -111,15 +136,40 @@ void racket::setBufferRacket1() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_racket1);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexRacket12), indexRacket12, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	glGenTextures(1, &texCoordRacket1);
+	glBindTexture(GL_TEXTURE_2D, texCoordRacket1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	int nrChanels, width, height;
+	unsigned char* data = stbi_load("img/containerBois.jpg", &width, &height, &nrChanels, 0);
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_INT, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		std::cout << " erreur lors du load des textures " << std::endl;
+	}
+	stbi_image_free(data);
+
 	// fin de la compillation des  shaders 
 
 }
 void racket::drawRacket1() {
+	glBindTexture(GL_TEXTURE_2D, texCoordRacket1);
 	glUseProgram(programShader);
 	glBindVertexArray(VAO_racket1);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -205,7 +255,7 @@ bool racket::buttonRacket1_down(GLFWwindow* window) {
 	}
 }
 bool racket::buttonRacket2_up(GLFWwindow* window) {
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
 		return true;
 	}
 	else {
@@ -213,7 +263,7 @@ bool racket::buttonRacket2_up(GLFWwindow* window) {
 	}
 }
 bool racket::buttonRacket2_down(GLFWwindow* window) {
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
 		return true;
 	}
 	else {

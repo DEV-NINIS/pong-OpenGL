@@ -64,8 +64,8 @@ int main() {
 				dirMoveRacket2Y += 0.010f;
 			}
 		}
-		glUniform1f(glGetUniformLocation(racketBall.getShaderProgram2(), "posRacket2"), dirMoveRacket2Y);
-		glUniform1f(glGetUniformLocation(racketBall.getShaderProgram(), "posRacket"), dirMoveRacket1Y);
+		glUniform1f(glGetUniformLocation(racketBall.getShaderProgram2(), "dirMoveRacket2Y"), dirMoveRacket2Y);
+		glUniform1f(glGetUniformLocation(racketBall.getShaderProgram(), "dirMoveRacket1Y"), dirMoveRacket1Y);
 		process_input(window);
 		glClearColor(0.9f, 0.5f, 0.2f, 0.9f);
 		glClear(GL_COLOR_BUFFER_BIT);
