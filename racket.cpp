@@ -5,10 +5,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stbi_img.h"
 float racket::verteciesRacket1[] = {
-	-0.95f, -0.25f, 0.0f,      0.9f, 0.8f, 0.1f,		0.025f, 0.125f,
-		-0.95f, 0.25f, 0.0f,		0.9f, 0.5f, 0.9f,	0.025f, -0.625f,
-		-0.90f, 0.25f, 0.0f,		0.5f, 0.9f, 0.7f,	0.050f, -0.625f,
-		-0.90f, -0.25f, 0.0f,		0.4f, 0.2f, 0.1f,	0.050f, 0.125f
+	-0.0f, -0.5f, 0.0f,      0.9f, 0.8f, 0.1f,		0.5f, 0.25f,
+		-0.0f, 0.5f, 0.0f,		0.9f, 0.5f, 0.9f,	0.5f, 0.75f,
+		-0.5f, 0.5f, 0.0f,		0.5f, 0.9f, 0.7f,	0.25f, 0.75f,
+		-0.5f, -0.5f, 0.0f,		0.4f, 0.2f, 0.1f,	0.25f, 0.25f
 };
 float racket::textCords[] = {
 	0
@@ -29,39 +29,32 @@ racket::racket() {
 	programShader;
 	codeFragmentShader = "#version 460 core\n"
 
-		" in vec3 aColor2;\n"
-		
-		" out vec4 FragColor;\n"
-		
-		"in vec2 ourTexCoord;\n"
-		
-		"uniform sampler2D ourTexture;\n"
+"out vec4 FragColor;\n"
+"in vec3 ourColor;\n"
+"in vec2 TexCoord;\n"
 
-		"void main() {\n"
-		
-		"FragColor = texture(ourTexture, ourTexCoord);\n"
-		
-		"}\n\0";
+"uniform sampler2D ourTexture;\n"
+
+"void main()\n"
+"{\n"
+"   FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);\n"
+"}\n\0";
 
 	codeVertexShader = "#version 460 core\n"
 
-		" layout (location = 0) in vec3 aPos;\n"
-		" layout (location = 1) in vec3 aColor;\n"
-		" laoyut (location = 2) in vec2 texCoord;\n"
+		"layout (location = 0) in vec3 aPos;\n" // la variable position a l'attribut de position 0
+		"layout (location = 1) in vec3 aColor;\n"
+		"layout (location = 2) in vec2 aTexCoord;\n"
 
 		"uniform float dirMoveRacket1Y;\n"
+		"out vec3 ourColor;\n" // nous definirons la couleur dans cette variable 
+		"out vec2 TexCoord;\n"
 
-		" out vec3 aColor2;\n"
-
-		"out vec2 ourTexCoord;\n"
-
-		"void main() {\n"
-
-		"	gl_Position = vec4(aPos.x, aPos.y + dirMoveRacket1Y, aPos.z, 1.0);\n"
-		
-		"	aColor2 = vec3(aColor);\n"
-
-		"	ourTexCoord = vec2(texCoord.x, texCoord.y);\n"
+		"void main()\n"
+		"{\n"
+		"   gl_Position = vec4(aPos.x, aPos.y + dirMoveRacket1Y, aPos.z, 1.0);\n"
+		"   ourColor = aColor;\n"
+		"   TexCoord = vec2(aTexCoord.x, aTexCoord.y);\n"
 		"}\n\0";
 	//
 	codeVertexShader2 = "#version 460 core\n"
@@ -144,20 +137,21 @@ void racket::setBufferRacket1() {
 
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
+
 	glGenTextures(1, &texCoordRacket1);
 	glBindTexture(GL_TEXTURE_2D, texCoordRacket1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	int nrChanels, width, height;
 	unsigned char* data = stbi_load("img/containerBois.jpg", &width, &height, &nrChanels, 0);
 	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_INT, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
@@ -169,8 +163,8 @@ void racket::setBufferRacket1() {
 
 }
 void racket::drawRacket1() {
-	glBindTexture(GL_TEXTURE_2D, texCoordRacket1);
 	glUseProgram(programShader);
+	glBindTexture(GL_TEXTURE_2D, texCoordRacket1);
 	glBindVertexArray(VAO_racket1);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
