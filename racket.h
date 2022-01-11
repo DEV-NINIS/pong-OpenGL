@@ -40,7 +40,9 @@ protected:
 	unsigned int programShader;
 	unsigned int programShader2;
 	GLuint texCoordRacket1;
+	GLuint texCoordRacket1_2;
 	GLuint texCoordRacket2;
+	GLuint tecCoordRacket2_2;
 	static float textCords[];
 	static float verteciesRacket1[];
 	static float verteciesRacket2[];

@@ -35,7 +35,6 @@ int main() {
 	racketBall.setBufferRacket2();
 	while (!glfwWindowShouldClose(window))
 	{
-		std::cout << dirMoveRacket1Y << std:: endl;
 		if (dirMoveRacket1Y <= 1.0f - (0.5/2) && dirMoveRacket1Y >= -1.0f + 0.5/2)
 		{
 			dirMoveRacket1Y = dirMoveRacket1Y + racketBall.moveRacket1(window, dirMoveRacket1Y);

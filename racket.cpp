@@ -5,10 +5,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stbi_img.h"
 float racket::verteciesRacket1[] = {
-	-0.0f, -0.5f, 0.0f,      0.9f, 0.8f, 0.1f,		0.5f, 0.25f,
-		-0.0f, 0.5f, 0.0f,		0.9f, 0.5f, 0.9f,	0.5f, 0.75f,
-		-0.5f, 0.5f, 0.0f,		0.5f, 0.9f, 0.7f,	0.25f, 0.75f,
-		-0.5f, -0.5f, 0.0f,		0.4f, 0.2f, 0.1f,	0.25f, 0.25f
+	-0.95f, -0.25f, 0.0f,      0.9f, 0.8f, 0.1f,		0.025f, 0.125f,
+		-0.95f, 0.25f, 0.0f,		0.9f, 0.5f, 0.9f,	0.025f, 0.625f,
+		-0.90f, 0.25f, 0.0f,		0.5f, 0.9f, 0.7f,	0.050f, 0.625f,
+		-0.90f, -0.25f, 0.0f,		0.4f, 0.2f, 0.1f,	0.050f, 0.125f
 };
 float racket::textCords[] = {
 	0
@@ -30,31 +30,37 @@ racket::racket() {
 	codeFragmentShader = "#version 460 core\n"
 
 "out vec4 FragColor;\n"
-"in vec3 ourColor;\n"
-"in vec2 TexCoord;\n"
+"in vec3 aColor2;\n"
+"in vec2 ourTexCoord;\n"
 
-"uniform sampler2D ourTexture;\n"
+"uniform sampler2D ourTexture1;\n"
+"uniform sampler2D ourTexture2;\n"
 
 "void main()\n"
 "{\n"
-"   FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);\n"
+"   FragColor = mix(texture(ourTexture1, ourTexCoord), texture(ourTexture2, ourTexCoord), 0.9) * vec4(aColor2, 1.0);\n"
 "}\n\0";
 
 	codeVertexShader = "#version 460 core\n"
 
-		"layout (location = 0) in vec3 aPos;\n" // la variable position a l'attribut de position 0
-		"layout (location = 1) in vec3 aColor;\n"
-		"layout (location = 2) in vec2 aTexCoord;\n"
+		" layout (location = 0) in vec3 aPos;\n"
+		" layout (location = 1) in vec3 aColor;\n"
+		" layout (location = 2) in vec2 atexCoord;\n"
 
 		"uniform float dirMoveRacket1Y;\n"
-		"out vec3 ourColor;\n" // nous definirons la couleur dans cette variable 
-		"out vec2 TexCoord;\n"
 
-		"void main()\n"
+		" out vec3 aColor2;\n"
+
+		"out vec2 ourTexCoord;\n"
+
+		"void main()"
 		"{\n"
-		"   gl_Position = vec4(aPos.x, aPos.y + dirMoveRacket1Y, aPos.z, 1.0);\n"
-		"   ourColor = aColor;\n"
-		"   TexCoord = vec2(aTexCoord.x, aTexCoord.y);\n"
+
+		"	gl_Position = vec4(aPos.x, aPos.y + dirMoveRacket1Y, aPos.z, 1.0);\n"
+		
+		"	aColor2 = aColor;\n"
+
+		"	ourTexCoord = vec2(atexCoord.x, atexCoord.y);\n"
 		"}\n\0";
 	//
 	codeVertexShader2 = "#version 460 core\n"
@@ -142,14 +148,15 @@ void racket::setBufferRacket1() {
 	glBindTexture(GL_TEXTURE_2D, texCoordRacket1);
 	float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 
+		// tex1
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	int nrChanels, width, height;
-	unsigned char* data = stbi_load("img/containerBois.jpg", &width, &height, &nrChanels, 0);
+	unsigned char* data = stbi_load("img/TexturesCom_LandscapeCity0099_2_M.jpg", &width, &height, &nrChanels, 0);
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -158,13 +165,42 @@ void racket::setBufferRacket1() {
 		std::cout << " erreur lors du load des textures " << std::endl;
 	}
 	stbi_image_free(data);
+		//
+		// tex2
+	glGenTextures(1, &texCoordRacket1_2);
+	glBindTexture(GL_TEXTURE_2D, texCoordRacket1_2);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	data = stbi_load("img/containerBois.jpg", &width, &height, &nrChanels, 0);
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, GL_RGB, 0, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		std::cout << " erreur lors de la generation des textures " << std::endl;
+	}
+	stbi_image_free(data);
+		// fin de la generation de la texture 2
+
+		// allocation des textures dans les variables uniformes des shaders
+	glUseProgram(programShader);
+	glUniform1i(glGetUniformLocation(programShader, "ourTexture1"), 0);
+	glUniform1i(glGetUniformLocation(programShader, "ourTexture2"), 1);
+		//
 
 	// fin de la compillation des  shaders 
 
 }
 void racket::drawRacket1() {
 	glUseProgram(programShader);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texCoordRacket1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texCoordRacket1_2);
 	glBindVertexArray(VAO_racket1);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
