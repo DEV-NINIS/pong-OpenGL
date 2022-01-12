@@ -86,7 +86,7 @@ racket::racket() {
 		""
 		"}\n";
 	successCompile;
-	texCoordRacket1; texCoordRacket2;
+	texCoordRacket1; texCoordRacket2; texCoordRacket1_2; tecCoordRacket2_2;
 	VBO_racket1; VAO_racket1; EBO_racket1;
 	VAO_racket2; VBO_racket2; EBO_racket2;
 }
@@ -156,7 +156,7 @@ void racket::setBufferRacket1() {
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	int nrChanels, width, height;
-	unsigned char* data = stbi_load("img/TexturesCom_LandscapeCity0099_2_M.jpg", &width, &height, &nrChanels, 0);
+	unsigned char* data = stbi_load("img/containerBois.jpg", &width, &height, &nrChanels, 0);
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -173,11 +173,9 @@ void racket::setBufferRacket1() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	data = stbi_load("img/containerBois.jpg", &width, &height, &nrChanels, 0);
+	data = stbi_load("img/containerBoisTexturesCom_LandscapeCity0099_2_M.jpg", &width, &height, &nrChanels, 0);
 	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, GL_RGB, 0, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, GL_RGBA, 0, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
@@ -196,11 +194,11 @@ void racket::setBufferRacket1() {
 
 }
 void racket::drawRacket1() {
-	glUseProgram(programShader);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texCoordRacket1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texCoordRacket1_2);
+	glUseProgram(programShader);
 	glBindVertexArray(VAO_racket1);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
